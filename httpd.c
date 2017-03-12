@@ -22,7 +22,7 @@
 #include <strings.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -66,8 +66,10 @@ void accept_request(void *arg)
                        * program */
     char *query_string = NULL;
 
+	printf("accept_request\n");
     numchars = get_line(client, buf, sizeof(buf));
-    i = 0; j = 0;
+    printf("buf is: %s\n", buf);
+	i = 0; j = 0;
     while (!ISspace(buf[i]) && (i < sizeof(method) - 1))
     {
         method[i] = buf[i];
@@ -317,16 +319,21 @@ int get_line(int sock, char *buf, int size)
     char c = '\0';
     int n;
 
+	n = recv(sock, &c, 1, 0);
+	printf("asdasd is: %c \n", c);
+
+
     while ((i < size - 1) && (c != '\n'))
     {
+		printf("enter while\n");
         n = recv(sock, &c, 1, 0);
-        /* DEBUG printf("%02X\n", c); */
+        printf("%c\n", c);
         if (n > 0)
         {
             if (c == '\r')
             {
                 n = recv(sock, &c, 1, MSG_PEEK);
-                /* DEBUG printf("%02X\n", c); */
+                printf("%c\n", c);
                 if ((n > 0) && (c == '\n'))
                     recv(sock, &c, 1, 0);
                 else
@@ -493,7 +500,7 @@ int main(void)
     int client_sock = -1;
     struct sockaddr_in client_name;
     socklen_t  client_name_len = sizeof(client_name);
-    pthread_t newthread;
+//    pthread_t newthread;
 
     server_sock = startup(&port);
     printf("httpd running on port %d\n", port);
@@ -505,9 +512,10 @@ int main(void)
                 &client_name_len);
         if (client_sock == -1)
             error_die("accept");
-        /* accept_request(&client_sock); */
+        accept_request(&client_sock);
+		/*
         if (pthread_create(&newthread , NULL, (void *)accept_request, (void *)&client_sock) != 0)
-            perror("pthread_create");
+            perror("pthread_create");*/
     }
 
     close(server_sock);
